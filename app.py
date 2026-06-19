@@ -36,8 +36,7 @@ def init_db():
     conn.close()
 
 app = Flask(__name__)
-with app.app_context():
-    init_db()
+
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", os.urandom(32))
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -228,7 +227,8 @@ def logout():
     return redirect(url_for("login"))
 
 
-
+with app.app_context():
+    init_db()
 
 if __name__ == "__main__":
     init_db()

@@ -17,9 +17,27 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_bcrypt import Bcrypt
 from flask_wtf import CSRFProtect
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "users.db")
+def init_db():
+    conn = get_db()
+
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        failed_attempts INTEGER DEFAULT 0,
+        locked_until TEXT,
+        created_at TEXT NOT NULL
+    )
+    """)
+
+    conn.commit()
+    conn.close()
 
 app = Flask(__name__)
+with app.app_context():
+    init_db()
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", os.urandom(32))
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
